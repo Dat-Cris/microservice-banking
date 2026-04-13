@@ -1,0 +1,174 @@
+{
+    "info": {
+        "_postman_id": "563c5f7a-1e27-4c14-9dc6-ee51c451723d",
+        "name": "Banking",
+        "description": "Banking Microservices API Collection\n\nFlow: Register -> Login -> Create Account -> Deposit -> Activate -> Transfer/Withdraw",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "authToken", "value": "", "type": "default" },
+        { "key": "ApiGatewayURL", "value": "http://localhost:8080", "type": "default" },
+        { "key": "accountNumber", "value": "0600140000001", "type": "default" },
+        { "key": "referenceId", "value": "", "type": "default" }
+    ],
+    "item": [
+        {
+            "name": "user-service",
+            "item": [
+                {
+                    "name": "1. Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": { "mode": "raw", "raw": "{\n    \"fullName\": \"Test User\",\n    \"username\": \"admin\",\n    \"password\": \"123\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/users/register", "host": ["{{ApiGatewayURL}}"], "path": ["api", "users", "register"] }
+                    }
+                },
+                {
+                    "name": "2. Login",
+                    "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 200) {", "    var jsonData = pm.response.json();", "    if (jsonData.token) {", "        pm.collectionVariables.set('authToken', jsonData.token);", "    }", "}"] } }],
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": { "mode": "raw", "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"123\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/users/login", "host": ["{{ApiGatewayURL}}"], "path": ["api", "users", "login"] }
+                    }
+                },
+                {
+                    "name": "3. Get All Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/users", "host": ["{{ApiGatewayURL}}"], "path": ["api", "users"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "account-service",
+            "item": [
+                {
+                    "name": "1. Create Account",
+                    "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 200 || pm.response.code === 201) {", "    var jsonData = pm.response.json();", "    if (jsonData.accountNumber) {", "        pm.collectionVariables.set('accountNumber', jsonData.accountNumber);", "    }", "}"] } }],
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "body": { "mode": "raw", "raw": "{\n    \"accountType\": \"SAVINGS_ACCOUNT\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts"] }
+                    }
+                },
+                {
+                    "name": "2. Read Accounts By User ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts/1", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts", "1"] }
+                    }
+                },
+                {
+                    "name": "3. Read By Account Number",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts?accountNumber={{accountNumber}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts"], "query": [{ "key": "accountNumber", "value": "{{accountNumber}}" }] }
+                    }
+                },
+                {
+                    "name": "4. Get Account Balance",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts/balance?accountNumber={{accountNumber}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts", "balance"], "query": [{ "key": "accountNumber", "value": "{{accountNumber}}" }] }
+                    }
+                },
+                {
+                    "name": "5. Update Account Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "body": { "mode": "raw", "raw": "{\n    \"accountStatus\": \"ACTIVE\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts?accountNumber={{accountNumber}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts"], "query": [{ "key": "accountNumber", "value": "{{accountNumber}}" }] }
+                    }
+                },
+                {
+                    "name": "6. Close Account",
+                    "request": {
+                        "method": "PUT",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts/closure?accountNumber={{accountNumber}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts", "closure"], "query": [{ "key": "accountNumber", "value": "{{accountNumber}}" }] }
+                    }
+                },
+                {
+                    "name": "7. Get Transactions By Account",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/accounts/{{accountNumber}}/transactions", "host": ["{{ApiGatewayURL}}"], "path": ["api", "accounts", "{{accountNumber}}", "transactions"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "transaction-service",
+            "item": [
+                {
+                    "name": "1. Deposit",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "body": { "mode": "raw", "raw": "{\n    \"accountId\": \"{{accountNumber}}\",\n    \"transactionType\": \"DEPOSIT\",\n    \"amount\": 10000,\n    \"description\": \"Deposit\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/transactions", "host": ["{{ApiGatewayURL}}"], "path": ["api", "transactions"] }
+                    }
+                },
+                {
+                    "name": "2. Withdrawal",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "body": { "mode": "raw", "raw": "{\n    \"accountId\": \"{{accountNumber}}\",\n    \"transactionType\": \"WITHDRAWAL\",\n    \"amount\": 2000,\n    \"description\": \"Withdrawal\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/transactions", "host": ["{{ApiGatewayURL}}"], "path": ["api", "transactions"] }
+                    }
+                },
+                {
+                    "name": "3. Get Transactions By Account",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/transactions?accountId={{accountNumber}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "transactions"], "query": [{ "key": "accountId", "value": "{{accountNumber}}" }] }
+                    }
+                },
+                {
+                    "name": "4. Get Transaction By Reference",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/transactions/{{referenceId}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "transactions", "{{referenceId}}"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "fund-transfer-service",
+            "item": [
+                {
+                    "name": "1. Fund Transfer",
+                    "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["if (pm.response.code === 200 || pm.response.code === 201) {", "    var jsonData = pm.response.json();", "    if (jsonData.transactionReference) {", "        pm.collectionVariables.set('referenceId', jsonData.transactionReference);", "    }", "}"] } }],
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "body": { "mode": "raw", "raw": "{\n    \"fromAccount\": \"{{accountNumber}}\",\n    \"toAccount\": \"0600140000002\",\n    \"amount\": \"5000\"\n}", "options": { "raw": { "language": "json" } } },
+                        "url": { "raw": "{{ApiGatewayURL}}/api/fund-transfers", "host": ["{{ApiGatewayURL}}"], "path": ["api", "fund-transfers"] }
+                    }
+                },
+                {
+                    "name": "2. Get Transfer Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}", "type": "text" }],
+                        "url": { "raw": "{{ApiGatewayURL}}/api/fund-transfers/{{referenceId}}", "host": ["{{ApiGatewayURL}}"], "path": ["api", "fund-transfers", "{{referenceId}}"] }
+                    }
+                }
+            ]
+        }
+    ]
+}
