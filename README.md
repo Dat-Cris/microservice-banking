@@ -141,7 +141,7 @@ Docker Compose tự đọc file `.env` và inject vào tất cả service.
 
 ```bash
 # Clone
-git clone git@github.com:hiepdeptrai0908/MicroService-Banking-Team2.git
+git clone https://github.com/Dat-Cris/microservice-banking.git
 cd MicroService-Banking-Team2
 
 # Cập nhật code mới nhất
