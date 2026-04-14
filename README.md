@@ -25,7 +25,7 @@ CREATE DATABASE IF NOT EXISTS sequence_generator;
 2. Copy file `.env`:
 
 ```bash
-cp .env.example .env
+cp .env .env
 ```
 
 3. Sửa `.env` cho đúng thông tin MySQL local:
