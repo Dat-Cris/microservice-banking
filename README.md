@@ -149,6 +149,7 @@ git checkout main
 git pull
 
 # Tạo nhánh mới để code
+
 git checkout -b dev/ten_chuc_nang
 ```
 
